@@ -5,7 +5,8 @@ import requests
 
 @allure.feature("Справочники")
 @allure.story("КБе/КОд")
-def test_get_code_list(base_url, api_session):
+def test_get_code_list(base_url, api_session, capture_responses):
+
     # Тест получения списка КБе/КОд
     endpoint = f"{base_url}/api/v1/smepayments/dictionaries/code"
 
@@ -29,6 +30,8 @@ def test_get_code_list(base_url, api_session):
             assert isinstance(code_obj["name"], str), "Поле 'name' должно быть строкой"
             assert isinstance(code_obj["value"], str), "Поле 'value' должно быть строкой"
             assert isinstance(code_obj["residency"], bool), "Поле 'residency' должно быть булеан"
+
+    capture_responses(resp)
 
     with allure.step("Пример полученных данных"):
         allure.attach(

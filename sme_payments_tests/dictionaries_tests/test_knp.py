@@ -5,7 +5,8 @@ import requests
 
 @allure.feature("Справочники")
 @allure.story("КНП")
-def test_get_knp_list(base_url, api_session):
+def test_get_knp_list(base_url, api_session, capture_responses):
+
     # Тест получения списка КНП
     endpoint = f"{base_url}/api/v1/smepayments/dictionaries/knp"
 
@@ -27,6 +28,8 @@ def test_get_knp_list(base_url, api_session):
             assert "value" in code_obj, "Поле 'code' должно содержать 'value'"
             assert isinstance(code_obj["name"], str), "Поле 'name' должно быть строкой"
             assert isinstance(code_obj["value"], str), "Поле 'value' должно быть строкой"
+
+    capture_responses(resp)
 
     with allure.step("Пример полученных данных"):
         allure.attach(

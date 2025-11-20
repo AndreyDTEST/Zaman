@@ -5,8 +5,10 @@ import allure
 from payment_keys import PAYMENT_KEYS
 
 @allure.feature("Справочники")
-@allure.story("Проверка справочника mobile-data")
-def test_get_mobile_data(base_url, api_session):
+@allure.story("Mobile-data")
+def test_get_mobile_data(base_url, api_session, capture_responses):
+
+    # Тест получения сокращенных значений
     endpoint = f"{base_url}/api/v1/smepayments/dictionaries/mobile-data"
 
     for short_code, payment_data in PAYMENT_KEYS.items():
@@ -14,10 +16,12 @@ def test_get_mobile_data(base_url, api_session):
         params = {"key": payment_code}
 
         with allure.step(f"Тест: {short_code} -> {payment_code}"):
-            response = api_session.get(endpoint, params=params)
+            resp = api_session.get(endpoint, params=params)
 
-            assert response.status_code == 200, f"Ошибка API для {payment_code}: {response.text}"
-            response_json = response.json()
+            capture_responses(resp)
+
+            assert resp.status_code == 200, f"Ошибка API для {payment_code}: {resp.text}"
+            response_json = resp.json()
 
             # Проверка структуры
             assert "localizedStrings" in response_json

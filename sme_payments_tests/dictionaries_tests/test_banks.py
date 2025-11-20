@@ -5,7 +5,8 @@ import requests
 
 @allure.feature("Справочники")
 @allure.story("БВУ")
-def test_get_banks_list(base_url, api_session):
+def test_get_banks_list(base_url, api_session, capture_responses):
+
     # Тест получения списка БВУ
     endpoint = f"{base_url}/api/v1/smepayments/dictionaries/banks"
 
@@ -29,6 +30,8 @@ def test_get_banks_list(base_url, api_session):
             assert isinstance(bank_obj["name"], str), "Поле 'name' должно быть строкой"
             assert isinstance(bank_obj["code"], str), "Поле 'code' должно быть строкой"
             assert isinstance(bank_obj["bic"], str), "Поле 'bic' должно быть строкой"
+
+    capture_responses(resp)
 
     with allure.step("Пример полученных данных"):
         allure.attach(

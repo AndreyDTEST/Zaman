@@ -2,6 +2,7 @@ from payment_configs import PAYMENT_TYPES
 import uuid
 import datetime
 
+
 def get_last_month_context():
     today = datetime.date.today()
     prev = (today.replace(day=1) - datetime.timedelta(days=1))
@@ -11,6 +12,7 @@ def get_last_month_context():
         "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"
     ][prev.month - 1]
     return period, month_ru, prev.year
+
 
 def build_budget_payment_payload(
     payment_type_key: str,
@@ -36,7 +38,7 @@ def build_budget_payment_payload(
     }
 
     if config["type"] == "employee_based":
-        # Стандартный платёж (ОПВ, ОПВР, СО и т.д.)
+        # Стандартный платеж (ОПВ, ОПВР, СО и т.д.)
         employee = {
             "name": client_info["name"],
             "middleName": client_info["patronymic"],

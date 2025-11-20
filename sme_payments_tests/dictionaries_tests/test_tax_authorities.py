@@ -5,7 +5,8 @@ import requests
 
 @allure.feature("Справочники")
 @allure.story("УГД")
-def test_get_tax_authorities_list(base_url, api_session):
+def test_get_tax_authorities_list(base_url, api_session, capture_responses):
+
     #Тест получения списка УГД
     endpoint = f"{base_url}/api/v1/smepayments/dictionaries/tax-authorities"
 
@@ -37,6 +38,8 @@ def test_get_tax_authorities_list(base_url, api_session):
             # Проверка: BIN должен быть длиной 12 символов
             assert len(ugd_obj["bin"]) == 12, (f"Поле 'bin' должно быть длиной 12 символов, получено: "
                                                f"{len(ugd_obj['bin'])} ('{ugd_obj['bin']}')")
+
+    capture_responses(resp)
 
     with allure.step("Пример полученных данных"):
         allure.attach(

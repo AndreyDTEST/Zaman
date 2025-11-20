@@ -63,7 +63,8 @@ def test_employee_creation_step(
     base_url,
     auth_tokens,
     get_user_accounts,
-    client_info
+    client_info,
+    capture_responses
 ):
     headers = {"Authorization": f"Bearer {auth_tokens['access']}"}
     created_employees = []
@@ -124,6 +125,8 @@ def test_employee_creation_step(
                 "middleName": emp_response.get("middleName")
             })
 
+            capture_responses(resp)
+
     # Сохраняем ID созданных сотрудников во временный файл
     created_ids = [emp["id"] for emp in created_employees]
     save_employee_ids_to_file(created_ids)
@@ -138,7 +141,7 @@ def test_employee_creation_step(
 # Проверка списка
 @allure.title("Проверка списка сотрудников")
 @allure.feature("Сотрудники")
-def test_employee_list_check_step(base_url, auth_tokens):
+def test_employee_list_check_step(base_url, auth_tokens, capture_responses):
     headers = {"Authorization": f"Bearer {auth_tokens['access']}"}
 
     # Загружаем ID из временного файла
@@ -164,12 +167,13 @@ def test_employee_list_check_step(base_url, auth_tokens):
                 attachment_type=allure.attachment_type.JSON
             )
 
+        capture_responses(resp)
 
 
 # Редактирование
 @allure.title("Редактирование первого сотрудника")
 @allure.feature("Сотрудники")
-def test_employee_update_step(base_url, auth_tokens, client_info):
+def test_employee_update_step(base_url, auth_tokens, client_info, capture_responses):
     headers = {"Authorization": f"Bearer {auth_tokens['access']}"}
 
     # Загружаем ID из временного файла
@@ -180,9 +184,9 @@ def test_employee_update_step(base_url, auth_tokens, client_info):
     employee_id = ids_to_check[0]
 
     updated_payload = {
-        "name": "Обновлённое Имя",
-        "lastName": "Обновлён",
-        "middleName": "Обновлёнович",
+        "name": "Обновленное Имя",
+        "lastName": "Обновлен",
+        "middleName": "Обновленович",
         "iin": _generate_valid_test_iin(), # Новый уникальный ИИН
         "birthday": _random_birthday(),    # Новый день рождения
         "country": "KZ",
@@ -198,10 +202,12 @@ def test_employee_update_step(base_url, auth_tokens, client_info):
         )
         assert resp.status_code == 200, f"Ошибка редактирования: {resp.text}"
 
+        capture_responses(resp)
+
         updated_employee = resp.json()
-        assert updated_employee["name"] == "Обновлённое Имя"
-        assert updated_employee["lastName"] == "Обновлён"
-        assert updated_employee["middleName"] == "Обновлёнович"
+        assert updated_employee["name"] == "Обновленное Имя"
+        assert updated_employee["lastName"] == "Обновлен"
+        assert updated_employee["middleName"] == "Обновленович"
         assert updated_employee["iin"] == updated_payload["iin"]
         assert updated_employee["birthday"] == updated_payload["birthday"]
 
@@ -228,7 +234,7 @@ def test_employee_list_check_after_update_step(base_url, auth_tokens):
     if not ids_to_check:
         pytest.fail("Нет ID сотрудников для проверки. Проверьте шаг 1.")
 
-    with allure.step("Проверить список снова (все 3, но первый обновлён)"):
+    with allure.step("Проверить список снова (все 3, но первый обновлен)"):
         resp = requests.get(
             f"{base_url}/api/v1/smepayments/employee-list",
             headers=headers
@@ -242,9 +248,9 @@ def test_employee_list_check_after_update_step(base_url, auth_tokens):
         # Проверяем обновленного сотрудника
         updated_emp = next((e for e in employees_list if e["id"] == first_id), None)
         assert updated_emp is not None, f"Обновленный сотрудник с ID {first_id} не найден"
-        assert updated_emp["name"] == "Обновлённое Имя"
-        assert updated_emp["lastName"] == "Обновлён"
-        assert updated_emp["middleName"] == "Обновлёнович"
+        assert updated_emp["name"] == "Обновленное Имя"
+        assert updated_emp["lastName"] == "Обновлен"
+        assert updated_emp["middleName"] == "Обновленович"
 
         # Проверяем остальных сотрудников
         for emp_id in other_ids:
@@ -276,7 +282,7 @@ def test_employee_deletion_step(base_url, auth_tokens):
 # Проверка пустого списка
 @allure.title("Проверка ошибки при пустом списке")
 @allure.feature("Сотрудники")
-def test_employee_list_empty_error_step(base_url, auth_tokens):
+def test_employee_list_empty_error_step(base_url, auth_tokens, capture_responses):
     headers = {"Authorization": f"Bearer {auth_tokens['access']}"}
 
     with allure.step("Проверить, что список сотрудников пуст (ожидаем 400 с ошибкой 32.10)"):

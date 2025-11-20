@@ -25,9 +25,7 @@ def test_get_user_accounts(base_url, auth_tokens):
 
     with allure.step("Отправить запрос на получение счетов"):
         resp = requests.get(f"{base_url}/api/v1/user/accounts", headers=headers)
-
         assert resp.status_code == 200, f"Ошибка получения счетов: {resp.status_code} — {resp.text}"
-
         accounts = resp.json()
         assert "accounts" in accounts, "Ответ не содержит поля 'accounts'"
 
@@ -43,13 +41,12 @@ def test_get_user_accounts(base_url, auth_tokens):
         )
 
 
-@allure.title("Проверить наличие хотя бы одного счёта в KZT")
+@allure.title("Проверить наличие хотя бы одного счета в KZT")
 @allure.feature("Счета")
 def test_has_kzt_account(get_user_accounts):
     with allure.step("Найти счета в KZT"):
         kzt_accounts = [acc for acc in get_user_accounts if acc["currency"] == "KZT"]
-
-        assert len(kzt_accounts) > 0, "Должен быть хотя бы один счёт в KZT"
+        assert len(kzt_accounts) > 0, "Должен быть хотя бы один счет в KZT"
 
     allure.attach(
         str(len(kzt_accounts)),
