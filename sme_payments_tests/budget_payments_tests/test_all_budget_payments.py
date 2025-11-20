@@ -147,7 +147,7 @@ def test_budget_payment(
 
         # Определяем ожидаемое название в зависимости от типа платежа
         if payment_type in ["IPN", "IPN_PENYA"]:
-            expected_title = "Платежное поручение"
+            expected_title = "Платёжное поручение"
         else:
             expected_title = "Массовое платежное поручение"
 
