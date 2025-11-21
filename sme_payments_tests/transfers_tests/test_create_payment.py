@@ -65,7 +65,6 @@ def test_create_payment_by_account(
         )
 
         resp = requests.post(url, json=payload, headers=headers)
-
         capture_responses(resp)
 
         allure.attach(

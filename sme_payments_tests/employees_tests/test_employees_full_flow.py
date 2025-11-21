@@ -113,6 +113,8 @@ def test_employee_creation_step(
                 json=payload,
                 headers=headers
             )
+
+            capture_responses(resp)
             assert resp.status_code == 200, f"Ошибка создания: {resp.text}"
 
             emp_response = resp.json()
@@ -125,7 +127,6 @@ def test_employee_creation_step(
                 "middleName": emp_response.get("middleName")
             })
 
-            capture_responses(resp)
 
     # Сохраняем ID созданных сотрудников во временный файл
     created_ids = [emp["id"] for emp in created_employees]
@@ -167,8 +168,6 @@ def test_employee_list_check_step(base_url, auth_tokens, capture_responses):
                 attachment_type=allure.attachment_type.JSON
             )
 
-        capture_responses(resp)
-
 
 # Редактирование
 @allure.title("Редактирование первого сотрудника")
@@ -202,8 +201,6 @@ def test_employee_update_step(base_url, auth_tokens, client_info, capture_respon
         )
         assert resp.status_code == 200, f"Ошибка редактирования: {resp.text}"
 
-        capture_responses(resp)
-
         updated_employee = resp.json()
         assert updated_employee["name"] == "Обновленное Имя"
         assert updated_employee["lastName"] == "Обновлен"
@@ -211,6 +208,7 @@ def test_employee_update_step(base_url, auth_tokens, client_info, capture_respon
         assert updated_employee["iin"] == updated_payload["iin"]
         assert updated_employee["birthday"] == updated_payload["birthday"]
 
+        capture_responses(resp)
         allure.attach(
             str(updated_payload),
             name="Запрос на редактирование",
@@ -261,7 +259,7 @@ def test_employee_list_check_after_update_step(base_url, auth_tokens):
 # Удаление всех
 @allure.title("Удаление всех созданных сотрудников")
 @allure.feature("Сотрудники")
-def test_employee_deletion_step(base_url, auth_tokens):
+def test_employee_deletion_step(base_url, auth_tokens, capture_responses):
     headers = {"Authorization": f"Bearer {auth_tokens['access']}"}
 
     # Загружаем ID из временного файла
@@ -276,7 +274,10 @@ def test_employee_deletion_step(base_url, auth_tokens):
                     f"{base_url}/api/v1/smepayments/employee-list/{emp_id}/delete",
                     headers=headers
                 )
+
+                capture_responses(resp)
                 assert resp.status_code == 200, f"Ошибка удаления сотрудника {emp_id}: {resp.text}"
+
 
 
 # Проверка пустого списка
@@ -292,6 +293,7 @@ def test_employee_list_empty_error_step(base_url, auth_tokens, capture_responses
         )
 
         # Проверка удаления всех сотрудников
+        capture_responses(resp)
         assert resp.status_code == 400, f"Ожидался статус 400 при пустом списке, получен: {resp.status_code}"
 
         error_response = resp.json()
